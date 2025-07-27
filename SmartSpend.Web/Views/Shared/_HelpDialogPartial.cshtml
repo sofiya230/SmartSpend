@@ -1,0 +1,31 @@
+﻿@model string
+@using System.Text
+@using Microsoft.Extensions.Options;
+@using Common.DotNet;
+@inject DemoConfig _democonfig;
+
+@{
+    string dialog_autoshow = null;
+    var seenkey = "HelpSeen" + Model;
+    if (_democonfig.IsEnabled && !this.Context.Session.TryGetValue(seenkey, out byte[] value))
+    {
+        dialog_autoshow = "dialog-autoshow";
+        var bytes = Encoding.UTF8.GetBytes("true");
+        this.Context.Session.Set(seenkey, bytes);
+    }
+}
+<div class="partialdialog modal fade @dialog_autoshow" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true" data-endpoint="/Help?id=@Model">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form method="post" action="/Help">
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <a href="/Help?from=@Model#@Model" target="_blank" class="btn btn-secondary btnDismissModal" data-test-id="btn-help-more">More</a>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-test-id="btn-help-close">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

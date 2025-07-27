@@ -1,0 +1,28 @@
+[
+  {
+    "ID": "full",
+    "Description": "Full Data Set",
+    "FileType": "XLSX",
+    "Kind": "Primary"
+  },
+  {
+    "ID": "BudgetTx",
+    "Description": "Budget",
+    "FileType": "XLSX",
+    "Kind": "Primary"
+  },
+  {
+    "ID": "Payee",
+    "Description": "Payees",
+    "FileType": "XLSX",
+    "Kind": "Primary"
+  },
+  {
+    "FileType": "XLSX",
+    "Kind": "Monthly"
+  },
+  {
+    "FileType": "OFX",
+    "Kind": "Monthly"
+  }
+]

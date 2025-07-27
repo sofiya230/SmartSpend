@@ -1,0 +1,52 @@
+﻿@model IEnumerable<SmartSpend.Core.Models.BudgetTx>
+
+@{
+    ViewData["Title"] = "Uploaded Budget";
+}
+
+<nav class="navbar navbar-light navbar-page mb-3">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">@ViewData["Title"]</span>
+        <a asp-action="Index" class="btn btn-secondary">Ok</a>
+    </div>
+</nav>
+
+
+<table class="table" data-test-id="results">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Timestamp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Memo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Timestamp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            <td data-test-id="memo">
+                @Html.DisplayFor(modelItem => item.Memo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

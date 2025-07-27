@@ -1,0 +1,228 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "web-user": {
+      "type": "string",
+      "metadata": {
+        "description": "Email address for default web administrator"
+      }
+    },
+    "web-pword": {
+      "type": "string",
+      "defaultValue": "[concat('We3$',uniqueString('We3$',resourceGroup().id,utcNow('FFFFFFF')))]",
+      "minLength": 10,
+      "metadata": {
+        "description": "Default web administrator password"
+      }
+    },
+    "sql-pword": {
+      "type": "string",
+      "defaultValue": "[concat('sQ1$',uniqueString('sQ1$',resourceGroup().id,utcNow('FFFFFFF')))]",
+      "minLength": 10,
+      "metadata": {
+        "description": "SQL Server admin password"
+      }
+    },
+    "api-key": {
+      "type": "string",
+      "defaultValue": "[concat('Ap2$',uniqueString('Ap2$',resourceGroup().id,utcNow('FFFFFFF')))]",
+      "minLength": 10,
+      "metadata": {
+        "description": "API Access key"
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "name": "[concat('SmartSpend-',uniqueString(resourceGroup().id))]",
+    "location": "[resourceGroup().location]",
+    "farm-name": "[concat('farm-',variables('name'))]",
+    "sqlserver-name": "[concat('sqlserver-',variables('name'))]",
+    "db-name": "[concat('db-',variables('name'))]",
+    "storage-name": "[concat('storage',uniqueString(resourceGroup().id))]",
+    "appInsightName": "[concat('insight-', variables('name'))]",
+    "logAnalyticsName": "[concat('logs-', variables('name'))]",
+    "sql-user": "sql-user",
+    "app-sku": "F1",
+    "packageUri": "https://github.com/sofiya230/SmartSpend/releases/download/1.0.0/SmartSpend-1.0.0.zip"
+  },
+  "resources": [
+    {
+      "name": "[variables('sqlserver-name')]",
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2014-04-01",
+      "location": "[variables('location')]",
+      "properties": {
+        "administratorLogin": "[variables('sql-user')]",
+        "administratorLoginPassword": "[parameters('sql-pword')]"
+      },
+      "resources": [
+        {
+          "type": "firewallRules",
+          "apiVersion": "2014-04-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlserver-name'))]"
+          ],
+          "location": "[variables('location')]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "[concat(variables('sqlserver-name'),'/',variables('db-name'))]",
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2014-04-01",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlserver-name'))]"
+      ],
+      "properties": {
+        "collation": "SQL_Latin1_General_CP1_CI_AS",
+        "edition": "Basic",
+        "maxSizeBytes": "1073741824",
+        "requestedServiceObjectiveName": "Basic"
+      }
+    },
+    {
+      "name": "[variables('storage-name')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "location": "[variables('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      }
+    },
+    {
+      "name": "[variables('farm-name')]",
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[variables('app-sku')]",
+        "capacity": 1
+      },
+      "kind": "linux",
+      "properties": {
+        "name": "[variables('farm-name')]",
+        "reserved": true
+      }
+    },
+    {
+      "name": "[variables('name')]",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('farm-name'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('farm-name'))]",
+        "siteConfig": {
+          "linuxFxVersion": "DOTNETCORE|6.0"
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('name'), '/connectionstrings')]",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2020-12-01",
+      "properties": {
+        "DefaultConnection": {
+          "value": "[concat('Server=tcp:',reference(variables('sqlserver-name')).fullyQualifiedDomainName,',1433;Initial Catalog=',variables('db-name'),';Persist Security Info=False;User ID=',variables('sql-user'),'@',variables('sqlserver-name'),';Password=',parameters('sql-pword'),';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
+          "type": "SqlAzure"
+        },
+        "StorageConnection": {
+          "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storage-name'), ';AccountKey=', listKeys(variables('storage-name'), '2019-04-01').keys[0].value,';EndpointSuffix=core.windows.net')]",
+          "type": "Custom"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('name'))]",
+        "[concat('Microsoft.Sql/servers/', variables('sqlserver-name'), '/databases/', variables('db-name'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storage-name'))]"
+      ]
+    },
+    {
+      "name": "[concat(variables('name'), '/appsettings')]",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2020-12-01",
+      "properties": {
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "ADMINUSER__PASSWORD": "[parameters('web-pword')]",
+        "ADMINUSER__EMAIL": "[parameters('web-user')]",
+        "API__KEY": "[parameters('api-key')]",
+        "APPLICATIONINSIGHTS_CONNECTION_STRING": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).ConnectionString]",
+        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]",
+        "ApplicationInsightsAgent_EXTENSION_VERSION": "~3",
+        "XDT_MicrosoftApplicationInsights_Mode": "Recommended"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('name'))]",
+        "[resourceId('Microsoft.Insights/components', variables('appInsightName'))]"
+      ]
+    },
+    {
+      "name": "[concat(variables('name'), '/ZipDeploy')]",
+      "type": "Microsoft.Web/sites/extensions",
+      "apiVersion": "2020-12-01",
+      "properties": {
+        "packageUri": "[variables('packageUri')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/',variables('name'))]",
+        "[resourceId('Microsoft.Web/sites/config', variables('name'), 'connectionstrings')]",
+        "[resourceId('Microsoft.Web/sites/config', variables('name'), 'appsettings')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('appInsightName')]",
+      "location": "[variables('location')]",
+      "kind": "string",
+      "tags": {
+        "displayName": "AppInsight",
+        "ProjectName": "[variables('name')]"
+      },
+      "properties": {
+        "Request_Source": "rest",
+        "Flow_Type": "Bluefield",
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[variables('logAnalyticsName')]",
+      "location": "[variables('location')]",
+      "tags": {
+        "displayName": "Log Analytics",
+        "ProjectName": "[variables('name')]"
+      },
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30,
+        "features": {
+          "searchVersion": 1,
+          "legacy": 0,
+          "enableLogAccessUsingOnlyResourcePermissions": true
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

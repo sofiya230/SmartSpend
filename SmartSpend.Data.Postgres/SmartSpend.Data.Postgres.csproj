@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartSpend.Entities\SmartSpend.Entities.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
+		<PackageReference Include="EFCore.BulkExtensions" Version="8.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4" PrivateAssets="All" />
+		<PackageReference Include="System.Text.Json" Version="8.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Identity\" />
+	  <Folder Include="Migrations\" />
+	</ItemGroup>
+
+</Project>

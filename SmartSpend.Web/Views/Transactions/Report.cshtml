@@ -1,0 +1,18 @@
+﻿@using SmartSpend.Core.Reports
+@using SmartSpend.AspNet.Controllers
+@model IDisplayReport
+
+@await Html.PartialAsync("_ReportNavbarPartial")
+
+<h2>@Model.Name</h2>
+
+@if (!string.IsNullOrEmpty(Model.Description))
+{
+    <h3>@Model.Description</h3>
+}
+
+<div class="bg-light border p-2 mb-3">
+    @await Html.PartialAsync("DisplayReport", Model)
+</div>
+
+<hr />

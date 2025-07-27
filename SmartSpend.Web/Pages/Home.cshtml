@@ -1,0 +1,135 @@
+﻿@page
+@using Common.DotNet
+@using Microsoft.Extensions.Options
+@inject IOptions<CodebaseConfig> codebase
+@model SmartSpend.AspNet.Pages.HomeModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Home";
+}
+
+<div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="100%" fill="#777" /></svg>
+
+            <div class="container">
+                <div class="carousel-caption text-start">
+                    <h1>@codebase.Value.Tagline</h1>
+                    <p>@codebase.Value.Name is an open-source web-based personal finance manager written in C# on ASP.NET Core. Host it on a cloud service to enable access to your personal finances from any device anywhere anytime, all while maintaining complete control over your data.</p>
+                    @if (Model.isDemo)
+                    {
+                        <p><a href="#" class="btn btn-lg btn-primary" data-help-topic="demo" data-help-href="/Transactions">Try the demo</a></p>
+                    }
+                    else if (Model.IsRouteToAdmin)
+                    {
+                        <p><a class="btn btn-lg btn-primary" asp-page="/Admin" data-test-id="btn-admin">Get started</a></p>
+                    }
+                    else
+                    {
+                        <p><a class="btn btn-lg btn-primary" asp-controller="Transactions" asp-action="Index">Get started</a></p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="100%" fill="#777" /></svg>
+
+            <div class="container">
+                <div class="carousel-caption">
+                    <h1>100% free and Open Source.</h1>
+                    <p>@codebase.Value.Name is @codebase.Value.License-licensed, hosted on GitHub, and will always be free and open source. Fork it today and get hacking!</p>
+                    <p><a class="btn btn-lg btn-primary" href="@codebase.Value.Link" target="_blank">See the code</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="100%" fill="#777" /></svg>
+
+            <div class="container">
+                <div class="carousel-caption text-end">
+                    <h1>Easy to deploy.</h1>
+                    <p>
+                        The fastest and simplest way to bring up @codebase.Value.Name for your own use is to deploy it to Azure.
+                        Use the included ARM deployment template to create all the needed resources in 
+                        Azure, including an App Service, SQL Database, Storage, etc., and automatically deploy the most recent build.
+                    </p>
+                    <p><a class="btn btn-lg btn-primary" href="@(codebase.Value.Link + "blob/master/deploy/ARM-Template.md")" target="_blank">Learn more</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+
+<!-- Marketing messaging and featurettes
+================================================== -->
+<!-- Wrap the rest of the page in another container to center all the content. -->
+
+<div class="container marketing">
+
+    <!-- Four columns of text below the carousel -->
+    <div class="row">
+        <div class="col-lg-3">
+            <img style="max-width:100px" src="~/images/import-100.png" srcset="~/images/import.svg" />
+            <h2>Import</h2>
+            <p>Download your debit & credit card statements from your bank in OFX or CSV format. Import them into @codebase.Value.Name to get started.</p>
+            <p>Attach receipt images to individual transactions to keep your records organized.</p>
+            <p><a class="btn btn-secondary" asp-page="/Import">Go to Imports &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-3">
+            <img style="max-width:100px" src="~/images/category-100.png" srcset="~/images/category.svg" />
+            <h2>Categorize</h2>
+            <p>
+                Assign categories to each transaction. This can be done automatically based on the payee for a transaction, using text match or regular expressions.
+            </p><p>
+                With unlimited levels of subcategories, bulk assignment, and splitting across multiple categories, you can clearly follow where you're spending your money.
+            </p>
+            <p><a class="btn btn-secondary" asp-controller="Transactions" asp-action="Index">Go to Transactions &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-3">
+            <img style="max-width:100px" src="~/images/budget-100.png" srcset="~/images/budget.svg"/>
+            <h2>Budget</h2>
+            <p>Create and track your budget on a yearly or monthly basis</p>
+            <p><a class="btn btn-secondary" asp-page="/Budget">Go to Budgets &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-3">
+            <img style="max-width:100px" src="~/images/report-100.png" srcset="~/images/report.svg" />
+            <h2>Report</h2>
+            <p>Gain insights on where your money is going over time, and how you're doing on your budget. @codebase.Value.Name's super flexible reporting system gives you the insight.</p>
+            <p>Access reports via REST API to easily integrate into your financial systems and Excel spreadsheets.</p>
+
+            <p><a class="btn btn-secondary" asp-page="/Reports">Go to Reports &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+    </div><!-- /.row -->
+</div><!-- /.container -->
+
+<div class="partialdialog modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form method="post" action="/Help">
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-test-id="btn-help-close">Cancel</button>
+                    <a href="/Help" class="btn btn-secondary btnDismissModal" data-test-id="btn-help-more">Help</a>
+                    <a id="helpModalGoBtn" class="btn btn-primary btnDismissModal" data-test-id="btn-help-go">Go</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

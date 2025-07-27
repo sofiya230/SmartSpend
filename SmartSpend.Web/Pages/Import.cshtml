@@ -1,0 +1,275 @@
+﻿@page
+@using SmartSpend.AspNet.Pages
+@using Common.DotNet
+@inject Common.DotNet.IClock _clock
+@model SmartSpend.AspNet.Pages.ImportModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Importer";
+}
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(HttpContext).RequestToken;
+    }
+}
+
+<input type="hidden" id="xsrf"
+       name="xsrf" value="@GetAntiXsrfRequestToken()">
+
+@*
+    PAGE NAVBAR
+*@
+
+<nav class="navbar navbar-light navbar-page mb-2">
+    <div class="container-fluid">
+        <span class="navbar-brand mt-1 h1">@ViewData["Title"]</span>
+        <div class="d-flex my-1">
+            <div class="nav-item dropstart" data-tooltip="tooltip" data-bs-placement="bottom" title="Actions">
+                <button class="btn btn-secondary dropdown-toggle dropdown-noarrow" id="dropdownMenuButtonAction" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonAction">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#helpModal" class="btn">Help Topic</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <h2>Error</h2>
+    <p class="alert-danger p-3">@Model.Error</p>
+}
+
+@if (0 == Model.Transactions.PageInfo.TotalItems)
+{
+    <h2>Select Files</h2>
+    <form method="post" enctype="multipart/form-data" asp-page-handler="Upload">
+        <div class="input-group mb-3 mt-3">
+            <button class="btn btn-primary" type="submit" id="inputGroupFileAddon03" disabled>Upload</button>
+            <input type="file" class="form-control" id="inputGroupFile03" aria-describedby="inputGroupFileAddon03" aria-label="Upload" name="files" multiple>
+        </div>
+    </form>
+
+    <h2 class="mt-4">Sample Data</h2>
+    <p>
+        Here are a collection of files you could download, then upload on this page, to add some sample data to your database. These files will demonstrate how to
+        format your own data for uploading.
+    </p>
+
+    <div class="row">
+        @foreach (var offering in Model.Offerings.Where(x => x.Kind == SmartSpend.Core.SampleData.SampleDataDownloadOfferingKind.Primary))
+        {
+            <div class="col-sm-4 col-12 p-2 d-flex">
+                <a class="btn flex-fill highlight" asp-page-handler="Sample" asp-route-what="@offering.ID" data-test-id="offering">
+                    @offering.FileType<br />@offering.Description<br />@_clock.Now.Year
+                </a>
+            </div>
+        }
+    </div>
+
+    <div class="row mb-3">
+        @foreach (var offering in Model.Offerings.Where(x => x.Kind == SmartSpend.Core.SampleData.SampleDataDownloadOfferingKind.Monthly))
+        {
+            <div class="col-lg-1 col-md-2 col-sm-3 col-4 p-2 d-flex">
+                <a class="btn flex-fill highlight" asp-page-handler="Sample" asp-route-what="@offering.ID" data-test-id="offering">
+                    @offering.FileType<br />@offering.Description<br />@_clock.Now.Year
+                </a>
+            </div>
+        }
+    </div>
+
+}
+else
+{
+    <h2>Imported Transactions</h2>
+    <p>These transactions are waiting in an import queue. Do you want to import them now, or delete them?</p>
+    <form method="post" asp-page-handler="Go">
+        <button type="submit" name="command" value="ok" class="btn btn-primary mb-3" data-test-id="btn-import">Import</button>
+        <button type="submit" name="command" value="cancel" class="btn btn-outline-secondary mb-3" data-test-id="btn-delete">Delete</button>
+    </form>
+
+    <table class="table table-index" data-test-id="results">
+        <thead>
+            <tr class="row">
+                <th class="col-1 col-lg-1">✓</th>
+                <th class="col-3 col-lg-2" style="text-align:right">
+                    Date<span class="d-none d-sm-inline d-lg-none">/Amount</span>
+                </th>
+                <th class="col-8 col-lg-4">
+                    Payee<span class="d-lg-none">/Category</span>/Memo
+                </th>
+                <th class="d-none d-lg-block col-lg-2" style="text-align:right">
+                    Amount
+                </th>
+                <th class="d-none d-lg-block col-lg-3">
+                    Category
+                </th>
+                <th class="d-none" data-test-id="Spacer"/>
+                <th class="d-none" data-test-id="Memo"/>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Transactions.Items)
+            {
+                var highlight = Model.Highlights.Contains(item.ID) ? "alert alert-warning" : string.Empty;
+                <tr class="row @highlight">
+                    <td class="col-1 col-lg-1">
+                        @{ var checkedornot = (item.Selected == true) ? "checked" : string.Empty; }
+                        <input type="checkbox" class="checkbox-post" @checkedornot data-endpoint="/ajax/tx/Select/@item.ID">
+                    </td>
+                    <td class="col-3 col-lg-2" style="text-align:right">
+                        @if (item.Timestamp.Year == _clock.Now.Year)
+                        {
+                            @item.Timestamp.ToString("M/dd")                            
+                        }
+                        else
+                        {
+                            @item.Timestamp.ToString("M/dd/yy")
+                        }
+                    </td>
+                    <td class="col-8 col-lg-4">
+                        @Html.DisplayFor(modelItem => item.Payee)
+                    </td>
+                    <td class="col-4 col-lg-2" style="text-align:right">
+                        @Html.DisplayFor(modelItem => item.Amount)
+                    </td>
+                    <td class="col-8 col-lg-3">
+                        @Html.DisplayFor(modelItem => item.Category)
+                    </td>
+                    @if (!string.IsNullOrEmpty(item.Memo))
+                    {
+                        <td class="col-4 col-lg-3"/>
+                        <td class="col-8 col-lg-9" data-test-id="memo">
+                            @Html.DisplayFor(modelItem => item.Memo)
+                        </td>                      
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @await Html.PartialAsync("/Views/Shared/_PaginationPartial.cshtml", Model.Transactions)
+}
+
+@if (Model.NumBudgetTxsUploaded > 0)
+{
+    var morecomments = (Model.NumBudgetTxsUploaded > ImportModel.MaxOtherItemsToShow) ? $" You'll find the first {ImportModel.MaxOtherItemsToShow} items shown below." : string.Empty;
+    <h2>Imported Budget Line Items</h2>
+    <p><span data-test-id="NumBudgetTxsUploaded">@Model.NumBudgetTxsUploaded</span> items have been imported to your budget. You can review your entire set of budget line items on the Edit Budget page.@morecomments</p>
+    <a asp-controller="BudgetTxs" asp-action="Index" class="btn btn-primary">Edit Budget &raquo;</a>
+
+    <table class="table table-index mt-1">
+        <thead>
+            <tr class="row">
+                <th class="col-3 col-lg-2" style="text-align:right">
+                    Date<span class="d-none d-sm-inline d-lg-none">/Amount</span>
+                </th>
+                <th class="col-9 col-lg-4">
+                    Category<span class="d-lg-none">/Memo</span> 
+                </th>
+                <th class="d-none d-lg-block col-lg-2" style="text-align:right">
+                    Amount
+                </th>
+                <th class="d-none d-lg-block col-lg-4">
+                    Memo
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.BudgetTxs)
+            {
+                <tr class="row">
+                    <td class="col-3 col-lg-2" style="text-align:right">
+                        @if (item.Timestamp.Year == _clock.Now.Year)
+                        {
+                            @item.Timestamp.ToString("M/dd")                            
+                        }
+                        else
+                        {
+                            @item.Timestamp.ToString("M/dd/yy")
+                        }
+                    </td>
+                    <td class="col-9 col-lg-4">
+                        @Html.DisplayFor(modelItem => item.Category)
+                    </td>
+                    <td class="col-3 col-lg-2" style="text-align:right">
+                        @Html.DisplayFor(modelItem => item.Amount)
+                    </td>
+                    <td class="col-9 col-lg-4">
+                        @Html.DisplayFor(modelItem => item.Memo)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@if (Model.NumPayeesUploaded > 0)
+{
+    var morecomments = (Model.NumPayeesUploaded > ImportModel.MaxOtherItemsToShow) ? $" You'll find the first {ImportModel.MaxOtherItemsToShow} items shown below." : string.Empty;
+
+    <h2>Imported Payee Matching Rules</h2>
+    <p><span data-test-id="NumPayeesUploaded">@Model.NumPayeesUploaded</span> items have been imported to your payee matching rules. You can review your entire set on the Payees page.@morecomments</p>
+    <a asp-controller="Payees" asp-action="Index" class="btn btn-primary">Payees &raquo;</a>
+
+    <table class="table table-index mt-1">
+        <thead>
+            <tr class="row">
+                <th class="col-md-6">
+                    Category<span class="d-md-none">/Name</span>
+                </th>
+                <th class="d-none d-md-block col-md-6">
+                    Name
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Payees)
+            {
+                <tr class="row">
+                    <td class="col-md-6">
+                        @Html.DisplayFor(modelItem => item.Category)
+                    </td>
+                    <td class="col-md-6">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (Model.NumReceiptsUploaded > 0)
+{
+    var morecomments = (Model.NumReceiptsUploaded > ImportModel.MaxOtherItemsToShow) ? $" You'll find the first {ImportModel.MaxOtherItemsToShow} items shown below." : string.Empty;
+
+    <h2>Imported Receipts</h2>
+    <p><span data-test-id="NumReceiptsUploaded">@Model.NumReceiptsUploaded</span> items have been imported to your receipts store. You can review your entire set on the Receipts page.@morecomments</p>
+    <a asp-controller="Receipts" asp-action="Index" class="btn btn-primary" data-test-id="btn-receipts">Receipts &raquo;</a>
+
+    <table class="table table-index mt-1">
+        <thead>
+            <tr class="row">
+                <th class="col-md-12">
+                    Filename
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Receipts)
+            {
+                <tr class="row">
+                    <td class="col-md-12">
+                        @Html.DisplayFor(modelItem => item.Filename)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@await Html.PartialAsync("/Views/Shared/_HelpDialogPartial.cshtml", "import")

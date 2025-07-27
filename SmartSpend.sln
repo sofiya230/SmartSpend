@@ -1,0 +1,81 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8B3F8F2-C0B6-4C39-BD44-359CA7A5FD5D}"
+	ProjectSection(SolutionItems) = preProject
+		.globalconfig = .globalconfig
+		.azure-pipelines\appservice.yaml = .azure-pipelines\appservice.yaml
+		.azure-pipelines\demo.yml = .azure-pipelines\demo.yml
+		.azure-pipelines\dotnet.yml = .azure-pipelines\dotnet.yml
+		.github\workflows\pull-request.yml = .github\workflows\pull-request.yml
+		.github\workflows\push-master.yml = .github\workflows\push-master.yml
+		README.md = README.md
+		docs\Roadmap.md = docs\Roadmap.md
+		deploy\yofi.azuredeploy.json = deploy\yofi.azuredeploy.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmartSpend.SampleGen", "SmartSpend.SampleGen", "{4F683028-1977-4946-AEE8-807A9A141427}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoFi.SampleGen", "YoFi.SampleGen\YoFi.SampleGen\YoFi.SampleGen.csproj", "{C0F2FC55-21E6-47D2-9786-77F07BAF3D9E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoFi.SampleGen.Tests", "YoFi.SampleGen\YoFi.SampleGen.Tests\YoFi.SampleGen.Tests.csproj", "{DF5B92EE-2BE4-44E6-8370-0D8368BBC706}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoFi.SampleGen.Exe", "YoFi.SampleGen\YoFi.SampleGen.Exe\YoFi.SampleGen.Exe.csproj", "{7095B2BF-A8B1-4334-BDCE-E0A2AC1A5683}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSpend.Web", "SmartSpend.Web\SmartSpend.Web.csproj", "{CE398FE8-8922-76B6-D270-D96F047330E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSpend.Core", "SmartSpend.Core\SmartSpend.Core.csproj", "{820323E6-7E99-C173-6C34-F20E2CE70599}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSpend.Data", "SmartSpend.Data\SmartSpend.Data.csproj", "{727EA31B-1779-0224-93B8-3AAF94DDED98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSpend.Entities", "SmartSpend.Entities\SmartSpend.Entities.csproj", "{23CF6C8D-ED1F-F664-6221-B21E32031A17}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C0F2FC55-21E6-47D2-9786-77F07BAF3D9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0F2FC55-21E6-47D2-9786-77F07BAF3D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0F2FC55-21E6-47D2-9786-77F07BAF3D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0F2FC55-21E6-47D2-9786-77F07BAF3D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF5B92EE-2BE4-44E6-8370-0D8368BBC706}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF5B92EE-2BE4-44E6-8370-0D8368BBC706}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF5B92EE-2BE4-44E6-8370-0D8368BBC706}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF5B92EE-2BE4-44E6-8370-0D8368BBC706}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7095B2BF-A8B1-4334-BDCE-E0A2AC1A5683}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7095B2BF-A8B1-4334-BDCE-E0A2AC1A5683}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7095B2BF-A8B1-4334-BDCE-E0A2AC1A5683}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7095B2BF-A8B1-4334-BDCE-E0A2AC1A5683}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE398FE8-8922-76B6-D270-D96F047330E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE398FE8-8922-76B6-D270-D96F047330E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE398FE8-8922-76B6-D270-D96F047330E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE398FE8-8922-76B6-D270-D96F047330E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{820323E6-7E99-C173-6C34-F20E2CE70599}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{820323E6-7E99-C173-6C34-F20E2CE70599}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{820323E6-7E99-C173-6C34-F20E2CE70599}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{820323E6-7E99-C173-6C34-F20E2CE70599}.Release|Any CPU.Build.0 = Release|Any CPU
+		{727EA31B-1779-0224-93B8-3AAF94DDED98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{727EA31B-1779-0224-93B8-3AAF94DDED98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{727EA31B-1779-0224-93B8-3AAF94DDED98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{727EA31B-1779-0224-93B8-3AAF94DDED98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23CF6C8D-ED1F-F664-6221-B21E32031A17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23CF6C8D-ED1F-F664-6221-B21E32031A17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23CF6C8D-ED1F-F664-6221-B21E32031A17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23CF6C8D-ED1F-F664-6221-B21E32031A17}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C0F2FC55-21E6-47D2-9786-77F07BAF3D9E} = {4F683028-1977-4946-AEE8-807A9A141427}
+		{DF5B92EE-2BE4-44E6-8370-0D8368BBC706} = {4F683028-1977-4946-AEE8-807A9A141427}
+		{7095B2BF-A8B1-4334-BDCE-E0A2AC1A5683} = {4F683028-1977-4946-AEE8-807A9A141427}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {27A67CB3-52C4-460C-A320-E616C82FE079}
+	EndGlobalSection
+EndGlobal

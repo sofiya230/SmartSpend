@@ -1,0 +1,179 @@
+﻿@page
+@using Common.DotNet
+@using Microsoft.Extensions.Options
+@inject IOptions<CodebaseConfig> codebase
+@model SmartSpend.AspNet.Pages.AdminModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Administration";
+}
+
+@*
+    XSRF Anti-Forgery Token
+    Needed for AJAX POST requests
+*@
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Model.HttpContext).RequestToken;
+    }
+}
+
+<input type="hidden" id="xsrf"
+       name="xsrf" value="@GetAntiXsrfRequestToken()">
+
+@*
+    PAGE NAVBAR
+*@
+
+<nav class="navbar navbar-light navbar-page mb-3">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">@ViewData["Title"]</span>
+    </div>
+</nav>
+
+@if (Model.DatabaseStatus.IsEmpty)
+{
+    <h2>Welcome!</h2>
+
+    <h4>Thanks for deploying @codebase.Value.Name</h4>
+
+    <p>I appreciate you taking the time to try out @codebase.Value.Name. Find problems? Have questions? Please <a href="@codebase.Value.IssuesLink" target="_blank">open an issue</a> or <a href="@(codebase.Value.Link + "/discussions")" target="_blank">start a discussion</a> on GitHub.</p>
+
+    <h4>Database Status: Empty</h4>
+
+    <p>You can import your own data in OFX or XLSX files on the <a asp-page="/Import">Import</a> page. There you'll also find some sample data files you can download to see how they should be formatted. You could turn around and upload those files to get some sample data.</p>
+
+    <p>You can inject sample data into the database here now, or add some later using the "Admin" link on the site navigation bar.</p>
+
+}
+else
+{
+    <h2>Database Status</h2>
+
+    <p>Current database statistics:</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Qty</th>
+                <th>Type</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tr>
+            <td data-test-id="num-tx">@Model.DatabaseStatus.NumTransactions</td>
+            <td>Transactions</td>
+            <td>
+                <div class="float-end">
+                    <a class="btn btn-sm btn-secondary" asp-controller="Transactions" asp-action="Index"><i class="far fa-eye"></i> View</a>
+                    @if (!Model.Config.NoDelete)
+                    {
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-id="tx"><i class="fa fa-trash-alt"></i> Delete</button>
+                    }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td data-test-id="num-budget">@Model.DatabaseStatus.NumBudgetTxs</td>
+            <td>Budget Line Items</td>
+            <td>
+                <div class="float-end">
+                    <a class="btn btn-sm btn-secondary" asp-controller="BudgetTxs" asp-action="Index"><i class="far fa-eye"></i> View</a>
+                    @if (!Model.Config.NoDelete)
+                    {
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-id="budget"><i class="fa fa-trash-alt"></i> Delete</button>
+                    }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td data-test-id="num-payee">@Model.DatabaseStatus.NumPayees</td>
+            <td>Payee Matching Rules</td>
+            <td>
+                <div class="float-end">
+                    <a class="btn btn-sm btn-secondary" asp-controller="Payees" asp-action="Index"><i class="far fa-eye"></i> View</a>
+                    @if (!Model.Config.NoDelete)
+                    {
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-id="payee"><i class="fa fa-trash-alt"></i> Delete</button>
+                    }
+                </div>
+            </td>
+        </tr>
+        <tbody>
+        </tbody>
+    </table>
+
+    @if (!Model.Config.NoDelete)
+    {
+        <p>Note: You can disable deleting of data from this screen by setting the ADMIN__NODELETE environment variable in your web app configuration.</p>
+    }
+}
+
+
+@if (Model.Offerings.Any())
+{
+    var first = Model.Offerings.First().ID;
+
+    <h4>Sample Data</h4>
+
+    <p>Please choose any of the following options to inject sample data into your database. You can always delete it later on this page.</p>
+    <div class="row mb-2">
+        @foreach (var offering in Model.Offerings)
+        {
+            <div class="col-xxl-2 col-lg-4 col-md-6 p-2 d-flex">
+                <div class="btn flex-fill highlight" data-id="@offering.ID" data-method="POST" data-bs-toggle="modal" data-bs-target="#seedModal">
+                    <h4>@offering.Title</h4>
+                    <p>@offering.Description</p>
+                    @if (first == offering.ID)
+                    {
+                        <p><i class="fas fa-star"></i> Recommended <i class="fas fa-star"></i></p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@*
+    WAIT FOR SEEDING DIALOG
+*@
+
+<div class="buttondialog modal fade" id="seedModal" tabindex="-1" role="dialog" aria-hidden="true" data-endpoint="/Transactions/Seed">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body m-2 text-center">
+                <h2>Adding sample data</h2>
+                <div class="d-flex justify-content-center spinner-container">
+                    <div class="spinner-border my-5" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*
+    DELETE CONFIRMATION DIALOG
+*@
+
+<div class="iddialog modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form asp-controller="Transactions" asp-action="DatabaseDelete">
+                <input type="hidden" name="id" value="test" />
+                <div class="modal-body">
+                    <h2 data-test-id="help-title">Are you sure?</h2>
+                    <p>These items will be deleted permanantly, with no option to recover them.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" data-test-id="btn-modal-ok">OK</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

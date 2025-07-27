@@ -1,0 +1,82 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<UserSecretsId>aspnet-OfxWeb.Asp-BDDDDEB0-488C-4CEF-A390-529A80D08E0A</UserSecretsId>
+		<StartupObject>SmartSpend.AspNet.Main.Program</StartupObject>
+
+
+
+		<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Ardalis.ValidateModel" Version="1.0.0" />
+		<PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.1" />
+		<PackageReference Include="Azure.Identity" Version="1.11.3" />
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
+		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
+		<PackageReference Include="EFCore.BulkExtensions" Version="8.0.3" />
+		<PackageReference Include="jcoliz.OfxSharp.NetStandard" Version="3.1.0" />
+		<PackageReference Include="jcoliz.OpenOfficeXml.Serializer" Version="1.0.3" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" PrivateAssets="All" />
+		<PackageReference Include="SendGrid" Version="9.29.3" />
+		<PackageReference Include="System.Text.Json" Version="8.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3" />
+		<DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.2" />
+		<DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Update="Views\BudgetTxs\Upload.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Payees\CreatePartial.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Payees\EditPartial.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+	</ItemGroup>
+
+	<!-- ✅ Shared Project References -->
+	<ItemGroup>
+		<ProjectReference Include="..\SmartSpend.Core\SmartSpend.Core.csproj" />
+		<ProjectReference Include="..\SmartSpend.Entities\SmartSpend.Entities.csproj" />
+		<ProjectReference Include="..\SmartSpend.Data\SmartSpend.Data.csproj" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+		<Folder Include="Seeders\" />
+	</ItemGroup>
+
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Command="pwsh --command &quot; &amp;'$(ProjectDir)scripts\Get-Version.ps1' &gt; '$(BaseIntermediateOutputPath)\version.txt' &quot;" />
+	</Target>
+
+	<ItemGroup>
+		<EmbeddedResource Include="$(BaseIntermediateOutputPath)\version.txt" />
+	</ItemGroup>
+
+</Project>

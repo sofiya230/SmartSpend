@@ -1,0 +1,72 @@
+﻿@model SmartSpend.AspNet.Pages.IReportAndChartViewModel
+@{
+}
+@*
+    HEADINGS
+*@
+
+<h2>@Model.Report.Name</h2>
+
+@if (!string.IsNullOrEmpty(Model.Report.Description))
+{
+    <h4>@Model.Report.Description</h4>
+}
+
+@if (!Model.Report.RowLabelsOrdered.Any(x=>!x.IsTotal))
+{
+    <p data-test-id="no-data">No data found for selected timeframe.</p>
+}
+else
+{ 
+
+<br/>
+
+@*
+    SIDE-BY-SIDE
+*@
+
+@if (Model.ShowSideChart)
+{
+    <div class="row">
+        <div class="col-lg-6">
+            <canvas id="chart"></canvas>
+        </div>
+        <div class="col-lg-6">
+            <div class="bg-light border p-2 mb-3">
+                @await Html.PartialAsync("DisplayReport", Model.Report)
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const ctx = document.getElementById('chart').getContext('2d');
+    const setup = @Html.Raw(Model.ChartJson);
+    const myChart = new Chart(ctx, setup);
+    </script>
+}
+
+@*
+    CHART-ABOVE-REPORT
+*@
+
+else
+{
+    if (Model.ShowTopChart)
+    {
+        <canvas id="chart" class="mb-3"></canvas>
+    }
+
+    <div class="bg-light border p-2">
+        @await Html.PartialAsync("DisplayReport", Model.Report)
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ChartJson))
+{
+    <script>
+    const ctx = document.getElementById('chart').getContext('2d');
+    const setup = @Html.Raw(Model.ChartJson);
+    const myChart = new Chart(ctx, setup);
+    </script>
+}
+}

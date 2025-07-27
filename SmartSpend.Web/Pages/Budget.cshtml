@@ -1,0 +1,60 @@
+﻿@page
+@model SmartSpend.AspNet.Pages.BudgetModel
+@inject Common.DotNet.IClock _clock
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Budget Summary";
+}
+
+@*
+    PAGE NAVBAR
+*@
+
+<nav class="navbar navbar-light navbar-page mb-2">
+    <div class="container-fluid">
+        <span class="navbar-brand mt-1 h1">@ViewData["Title"]</span>
+        <div class="d-flex my-1">
+            <div class="nav-item dropdown ms-auto me-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Year">
+                <button class="btn btn-outline-secondary dropdown-toggle dropdown-noarrow" id="dropdownMenuButtonYear" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-calendar-alt"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonYear">
+                    @{
+                        int currentyear = _clock.Now.Year;
+                        for (int y = 2017; y <= currentyear; ++y)
+                        {
+                            <a asp-route-y="@y"
+                                class="dropdown-item">@y</a>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="nav-item dropstart" data-tooltip="tooltip" data-bs-placement="bottom" title="Actions">
+                <button class="btn btn-secondary dropdown-toggle dropdown-noarrow" id="dropdownMenuButtonAction" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonAction">
+                    <a asp-controller="BudgetTxs" asp-action="Index" class="btn">Edit Budget</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+@*
+    BACKGROUND LOADER
+*@
+
+@{ 
+    var url = "/ReportPartial?slug=expenses-v-budget" + ((Model.Year.HasValue) ? $"&year={Model.Year.Value}" : string.Empty);
+}
+
+<div class="w-100 loadr" data-endpoint="@url">
+    <div class="d-flex justify-content-center spinner-container">
+        <div class="spinner-border my-5" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+
+    </div>
+</div>

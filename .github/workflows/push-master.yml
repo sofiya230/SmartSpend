@@ -1,0 +1,31 @@
+name: Build+Test
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get all git tags
+      run: git fetch --prune --unshallow --tags
+    - name: Create version.txt
+      run: git describe --long --always --abbrev=8 > YoFi.AspNet/version.txt
+    - name: Create release.txt
+      run: git describe --tags > YoFi.AspNet/release.txt
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Run Tests
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --settings:test/coverlet.runsettings
+      env:
+        api__key: APITESTKEYVALUE
+    - name: Publish Code Coverage
+      uses: codecov/codecov-action@v2

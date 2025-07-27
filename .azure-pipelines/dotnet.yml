@@ -1,0 +1,71 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+  branches:
+    include:
+    - master
+    - release/*
+    - hotfix/*
+  tags:
+    include:
+    - '*'
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  application: YoFi.AspNet
+  solution: YoFi.sln
+  api__key: APITESTKEYVALUE
+
+steps:
+- checkout: self
+  submodules: true
+
+- task: CmdLine@2
+  displayName: 'Create version.txt'
+  inputs:
+    script: 'git describe --long --always --abbrev=8 > $(application)/version.txt'
+
+- task: CmdLine@2
+  displayName: 'Create release.txt'
+  inputs:
+    script: 'git describe --tags > $(application)/release.txt'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution'
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run all solution tests'
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish web app'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--output $(System.DefaultWorkingDirectory)/publish_output --configuration Release'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+- task: ArchiveFiles@2
+  displayName: 'Archive files'
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)/publish_output'
+    includeRootFolder: false
+    archiveType: zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+    replaceExistingArchive: true
+
+- publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+  artifact: drop

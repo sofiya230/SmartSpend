@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ExcelFinancialFunctions" Version="3.3.0-rc1" />
+    <PackageReference Include="jcoliz.OfxSharp.NetStandard" Version="3.1.0" />
+    <PackageReference Include="jcoliz.OpenOfficeXml.Serializer" Version="1.0.3" />
+ 
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Helpers\**" />
+    <Content Remove="Helpers\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <None Remove="Helpers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="SampleDataGenerator\SampleDataDownloadOfferings.json" />
+    <Content Remove="SampleDataGenerator\SampleDataSeedOfferings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="SampleDataGenerator\ofx-footer.txt" />
+    <None Remove="SampleDataGenerator\ofx-header.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="SampleDataGenerator\ofx-footer.txt" />
+    <EmbeddedResource Include="SampleDataGenerator\ofx-header.txt" />
+    <EmbeddedResource Include="SampleDataGenerator\SampleDataDownloadOfferings.json" />
+    <EmbeddedResource Include="SampleDataGenerator\SampleDataSeedOfferings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+  
+  
+    <ProjectReference Include="..\SmartSpend.Data\SmartSpend.Data.csproj" />
+ 
+
+	  <ProjectReference Include="..\SmartSpend.Entities\SmartSpend.Entities.csproj" />
+  </ItemGroup>
+
+</Project>

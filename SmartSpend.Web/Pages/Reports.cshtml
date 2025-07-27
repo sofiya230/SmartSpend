@@ -1,0 +1,40 @@
+﻿@page
+@model SmartSpend.AspNet.Pages.ReportsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Reports";
+}
+
+@await Html.PartialAsync("_ReportNavbarPartial",Model)
+
+<h2>Summary</h2>
+
+@if (!string.IsNullOrEmpty(Model.Reports.First().First().Description))
+{
+    <h4>
+        @Model.Reports.First().First().Description
+    </h4>
+}
+
+<div class="row">
+
+    @foreach (var section in Model.Reports)
+    {
+    <div class="col-lg-6 p-4">
+
+        @foreach (var report in section)
+        {
+            if (report.RowLabelsOrdered.Where(x => !x.IsTotal).Any())
+            {
+                <div class="bg-light border p-2 mb-4 row">
+                    @await Html.PartialAsync("DisplayReport", report)
+                    @if (!string.IsNullOrEmpty(report.Definition))
+                    {
+                        <a asp-page="Report" asp-route-slug="@report.Definition-detail" class="col-sm-1 col-2 ms-auto btn btn-outline-secondary" data-test-id="@report.Definition-detail"><i class="fas fa-angle-double-right"></i></a>
+                    }
+                </div>
+            }
+        }
+    </div>
+    }
+</div>
